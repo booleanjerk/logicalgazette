@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Logical Gazette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Libre+Baskerville:ital,wght@1,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Libre Baskerville', serif;
+      background: #fdf6e3;
+      color: #4b3e2f;
+      max-width: 700px;
+      margin: 3rem auto;
+      padding: 2rem;
+      border: 1px solid #d8c3a5;
+      border-radius: 12px;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.8rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
+      text-indent: 2rem;
+    }
+
+    .fallacy-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    select, input {
+      padding: 0.5rem;
+      flex: 1;
+      font-family: 'Libre Baskerville', serif;
+      background: #fffaf2;
+      border: 1px solid #c1a57b;
+      border-radius: 6px;
+    }
+
+    #name-input {
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-family: 'Libre Baskerville', serif;
+      background-color: #e4c9a2;
+      color: #3b2f2f;
+      border: none;
+      border-radius: 6px;
+      margin-top: 1rem;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #d4b488;
+    }
+
+    #score {
+      font-weight: bold;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    #editor-response {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #c1a57b;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="letter-section">
+    <h1>Re: Erroneous Newspaper</h1>
+
+    <p>Most esteemed Sir Birticus,</p> 
+    <p>Pray allow me to express my consternation, for upon perusing your venerable publication—once held in high regard—I did encounter a veritable trove of grievous errors most unbecoming of so reputable a source.</p>
+    <p>Kindly do me the honour of conveying thy response to my humble correspondence, that I may know where I stand in thy estimable regard.</p>
+    <p>Kindest regards,</p>
+    <input id="name-input" type="text" placeholder="Noble reader's name">
+
+    <div id="fallacy-list"></div>
+    <button onclick="addFallacy()">Add Fallacy</button>
+    <button onclick="submitFallacies()">Submit</button>
+  </div>
+
+  <div id="score"></div>
+  <div id="editor-response"></div>
+
+  <script>
+    const fallacies = ["","Equivocation", "False Dilemma","Red Herring", "Straw Man", "Appeal to Authority", "Appeal to Emotion", "Correlation vs Causation", "Gambler's Fallacy", "Post Hoc Ergo Propter Hoc", "Begging the Question", "Ad Hominem", "Tu Quoque", "Slippery Slope", "Hasty Generalisation" ];
+    const correctAnswers = {
+      "A1": "Straw Man",
+      "A2": "Ad Hominem",
+      "A3": "False Dilemma",
+      "A5": "Slippery Slope",
+      "A4": "Appeal to Emotion",
+      "B1": "Red Herring",
+      "B2": "Begging the Question",
+      "B3": "Appeal to Authority",
+      "B4": "Tu Quoque",
+      "B5": "Hasty Generalisation"
+    };
+  
+    function addFallacy() {
+      const container = document.getElementById("fallacy-list");
+      const row = document.createElement("div");
+      row.className = "fallacy-row";
+  
+      const select = document.createElement("select");
+      fallacies.forEach(f => {
+        const option = document.createElement("option");
+        option.value = f;
+        option.textContent = f;
+        select.appendChild(option);
+      });
+  
+      const input = document.createElement("input");
+      input.placeholder = "Article code";
+  
+      row.appendChild(select);
+      row.appendChild(input);
+      container.appendChild(row);
+    }
+  
+    function submitFallacies() {
+      const name = document.getElementById("name-input").value.trim() || "Esteemed Reader";
+      const rows = document.querySelectorAll(".fallacy-row");
+      const usedArticles = new Set();
+      let score = 0;
+      let correctList = [];
+  
+      rows.forEach(row => {
+        const selectedFallacy = row.children[0].value;
+        const articleCode = row.children[1].value.trim();
+  
+        if (!usedArticles.has(articleCode) &&
+            correctAnswers[articleCode] === selectedFallacy) {
+          score += 1;
+          usedArticles.add(articleCode);
+          correctList.push(`${articleCode}: ${selectedFallacy}`);
+        }
+      });
+  
+      document.getElementById("letter-section").style.display = "none";
+      document.getElementById("editor-response").innerHTML = getEditorResponse(score, name, correctList);
+    }
+  
+    function getEditorResponse(score, name, correctList) {
+      const listHTML = correctList.length > 0
+        ? `<br><br><u>Thy right judgments:</u><br><ul>` + correctList.map(f => `<li>${f}</li>`).join('') + `</ul>`
+        : "";
+  
+      if (score === 10) {
+        return `<p><strong>Most Honourable ${name},</strong><br><br>
+        Thy piercing intellect and steadfast scrutiny have laid bare every fallacious blemish upon our pages. Of the ten errors thou didst uncover <strong>all ten</strong>, leaving none concealed.${listHTML}<br>
+        I am humbled by thy discernment and offer sincerest commendations.</p><p>Might I inquire if thou wouldst be so kind as to grace my humble newspaper with thy presence and offer thy esteemed services? We extend to thee a most generous remuneration, and the conditions under which thou shalt labor are of the highest quality, ensuring both comfort and satisfaction in thy noble pursuits.</p><p>Respectfully yours,</p><p>Sir Birticus Maximus</p>`;
+      } else if (score >= 7) {
+        return `<p><strong>Esteemed ${name},</strong><br><br>
+        I write in gratitude for thy vigilance. Of the ten deceits sown within our articles, thou didst uncover <strong>${score}</strong>, leaving but <strong>${10 - score}</strong> hidden in shadow.${listHTML}<br>
+        Thy keen eye doth credit thee well. With diligence such as thine, truth may yet prevail.</p><p>Respectfully yours,</p><p>Sir Birticus Maximus</p>`;
+      } else if (score >= 3) {
+        return `<p><strong>To the Watchful ${name},</strong><br><br>
+        Thy concern hath been received with courtesy. Of the ten errors thou didst espouse, <strong>${score}</strong> have proven justly accused, yet <strong>${10 - score}</strong> remain unexposed.${listHTML}<br>
+        Persevere, dear reader—for even the most seasoned critics falter ere they master the art of fallacy.</p><p>Respectfully yours,</p><p>Sir Birticus Maximus</p>`;
+      } else {
+        return `<p><strong>Kind ${name},</strong><br><br>
+        While thy intentions are noble, alas, of the ten fallacies but <strong>${score}</strong> were rightly discerned. A full <strong>${10 - score}</strong> yet dwell in shadow.${listHTML}<br>
+        Take heart—mistakes are the ink of wisdom. May thy future readings be ever more piercing.</p><p>Respectfully yours,</p><p>Sir Birticus Maximus</p>`;
+      }
+    }
+  </script>
+  
+  
+
+</body>
+</html>
